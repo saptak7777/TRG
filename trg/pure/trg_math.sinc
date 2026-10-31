@@ -1,0 +1,17 @@
+fn trg_pack_desc(length, script_a, script_b, magic) [
+    len_part = length & TRG_MASK_U32;
+    a_part = (script_a >> 8) << 32;
+    b_part = (script_b >> 8) << 40;
+    mag_part = (magic & TRG_MASK_BYTE) << 56;
+    la = len_part | a_part;
+    lab = la | b_part;
+    ret lab | mag_part;
+]
+
+fn trg_decode_1b(raw_byte, script_a, delta_ab) [
+    plane_mask = 0 - (raw_byte~ >> 7);
+    lang_base = script_a + (delta_ab & plane_mask);
+    ap_carry = (raw_byte~ & TRG_MASK_APERTURE) + TRG_CARRY_ADD;
+    is_lang = (ap_carry >> 7) - 1;
+    ret raw_byte + (lang_base & is_lang);
+]

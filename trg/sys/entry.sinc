@@ -1,0 +1,29 @@
+fn main!() [
+    arena = sys_mmap!(65536);
+    arena.TRG_DESC_HEADER = trg_pack_desc(4, TRG_SCRIPT_BENGALI, TRG_SCRIPT_TAMIL, TRG_MAGIC_BYTE);
+    text_buf = arena~ + TRG_PAYLOAD_OFFSET;
+    out_buf = arena + 4096;
+
+    b0 = TRG_BANK_A | 15;
+    b2 = TRG_BANK_B | 15;
+    b3 = TRG_DELIM_LBRACE ^ 1;
+
+    text_buf~@[0 * 1] = b0;
+    text_buf~@[1 * 1] = TRG_OP_PLUS;
+    text_buf~@[2 * 1] = b2;
+    text_buf~@[3 * 1] = b3;
+
+    trg_decode_buffer!(text_buf, out_buf~, TRG_SCRIPT_BENGALI, TRG_SCRIPT_TAMIL, 4);
+
+    c0 = out_buf~@[0 * 8];
+    c1 = out_buf~@[1 * 8];
+    c2 = out_buf~@[2 * 8];
+    c3 = out_buf@[3 * 8];
+
+    e0 = (c0 ^ 527) | (c1 ^ TRG_OP_PLUS);
+    e1 = (c2 ^ 1039) | (c3 ^ TRG_DELIM_RBRACE);
+    if ((e0 | e1) != 0) [
+        ret 1;
+    ]
+    ret 42;
+]

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+if [ "$#" -eq 0 ]; then
+    "$ROOT_DIR/build.sh" >/dev/null
+    exec "$ROOT_DIR/bin/trg"
+fi
+
+TARGET="$1"
+shift
+
+if [ -f "$TARGET" ]; then
+    SCRATCH="$ROOT_DIR/scratch"
+    mkdir -p "$SCRATCH"
+    BASE=$(basename "$TARGET" .sinc)
+    SAFE="$SCRATCH/$BASE.safe"
+    ELF="$SCRATCH/$BASE.elf"
+    
+    # If the file uses sys_* and doesn't define extern fn mmap, prepend sys.sinc
+    if grep -q "sys_" "$TARGET" && ! grep -q "extern fn mmap" "$TARGET"; then
+        COMBINED="$SCRATCH/${BASE}_combined.sinc"
+        cat "$ROOT_DIR/steel/sys/sys.sinc" "$TARGET" > "$COMBINED"
+        "$ROOT_DIR/bin/sinc.elf" "$COMBINED" "$SAFE"
+    else
+        "$ROOT_DIR/bin/sinc.elf" "$TARGET" "$SAFE"
+    fi
+    
+    "$ROOT_DIR/bin/packager_bin" "$SAFE" "$ELF"
+    chmod +x "$ELF"
+    exec "$ELF" "$@"
+fi
+
+echo "Usage: ./rsinc [file.sinc]"
+exit 1

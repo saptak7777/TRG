@@ -1,0 +1,85 @@
+{
+  "name": "trg-vscode",
+  "displayName": "TRG Editor (Experimental)",
+  "description": "Experimental editor and virtual file system for TRG relative text files",
+  "version": "0.0.1",
+  "publisher": "saptak",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "activationEvents": [
+    "onFileSystem:trg",
+    "workspaceContains:**/*.trg",
+    "onCustomEditor:trg.editor"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "trg",
+        "aliases": [
+          "TRG",
+          "trg",
+          "SINC",
+          "sinc"
+        ],
+        "extensions": [
+          ".trg",
+          ".sinc"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "trg",
+        "scopeName": "source.trg",
+        "path": "./syntaxes/trg.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "trg.openInEditor",
+        "title": "TRG: Open in Native Editor",
+        "category": "TRG"
+      },
+      {
+        "command": "trg.inspect",
+        "title": "TRG: Inspect Container Descriptor",
+        "category": "TRG"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "trg.openInEditor",
+          "when": "resourceExtname == .trg",
+          "group": "navigation@1"
+        },
+        {
+          "command": "trg.inspect",
+          "when": "resourceExtname == .trg",
+          "group": "navigation@2"
+        }
+      ]
+    },
+    "customEditors": [
+      {
+        "viewType": "trg.editor",
+        "displayName": "TRG Inspector / Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.trg"
+          }
+        ],
+        "priority": "default"
+      }
+    ]
+  },
+  "author": "Saptak Santra",
+  "license": "Apache-2.0"
+}
