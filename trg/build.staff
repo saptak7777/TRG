@@ -1,0 +1,5 @@
+artifact trg []
+
+deps [
+    steel/sys/sys.sinc;
+]

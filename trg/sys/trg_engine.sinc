@@ -1,0 +1,10 @@
+fn trg_decode_buffer!(data_ptr~, out_coords, script_a, script_b, length:4096) [
+    diff_ab = script_b - script_a~;
+    delta_ab = diff_ab - 128;
+    loop (i:4096 = 0 .. length) [
+        raw_byte = data_ptr@[i * 1];
+        coord = trg_decode_1b(raw_byte, script_a~, delta_ab~);
+        out_coords@[i * 8] = coord;
+    ]
+    ret 0;
+]
